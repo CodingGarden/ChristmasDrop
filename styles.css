@@ -1,0 +1,102 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  /* background: #333;  */
+  background: transparent;
+  font-family: 'Press Start 2P', sans-serif;
+}
+
+#tree {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  width: 10vw;
+  height: auto;
+  transform: translateX(-50%);
+}
+
+#ground-snow {
+  position: fixed;
+  bottom: -9vh;
+  width: 100%;
+  transform: scaleY(0.5)
+}
+
+.drop {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 8vmin;
+  animation: sway 1s infinite alternate ease-in-out;;
+}
+
+.drop .name {
+  position: absolute;
+  color: white;
+  top: -3vmin;
+  font-size: 3vmin;
+  text-shadow: -2px -2px 0px black, 0px -2px 0px black, 2px -2px 0px black, -2px 0px 0px black, 0px 0px 0px black, 2px 0px 0px black, -2px 2px 0px black, 0px 2px 0px black, 2px 2px 0px black;
+  z-index: 2;
+  text-align: center;
+}
+
+.drop .name span {
+  position: absolute;
+  bottom: 100%;
+  transform: translateX(-50%);
+}
+
+.drop .snowflake-bg {
+  position: absolute;
+  width: 100%;
+  height: auto;
+}
+
+.drop.ornament {
+  animation: none;
+}
+
+.drop.ornament .name  {
+  animation: shrink 30s ease-in-out;
+  transform: scale(0);
+}
+
+.drop.ornament .snowflake-bg {
+  visibility: hidden;
+}
+
+.drop .emote {
+  z-index: 1;
+  width: 50%;
+}
+
+.drop.done {
+  animation: shrink 30s ease-in-out;
+  transform: scale(0);
+}
+
+@keyframes sway {
+  0% {
+    transform: rotate(-10deg);
+  }
+  100% {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes shrink {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
