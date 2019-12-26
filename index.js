@@ -3,6 +3,10 @@ const urlParams = new URLSearchParams(window.location.search);
 const tree = document.getElementById('tree');
 const treeRect = tree.getBoundingClientRect();
 
+if (!urlParams.get('snowflakes')) {
+  document.querySelector('.snowflakes').remove();
+}
+
 let drops = [];
 const users = {};
 let ornaments = [];
