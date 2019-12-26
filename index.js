@@ -1,4 +1,4 @@
-import config from './config.js';
+const urlParams = new URLSearchParams(window.location.search);
 
 const tree = document.getElementById('tree');
 const treeRect = tree.getBoundingClientRect();
@@ -46,32 +46,34 @@ const dropPrototype = {
   },
 };
 
-
-const existingOrnaments = JSON.parse(localStorage.ornaments || '[]');
-
-existingOrnaments.forEach(({
-  position,
-  url,
-  avatar = true
-}) => {
-  const element = createDropElement('', url, true);
-  const ornament = {
-    __proto__: dropPrototype,
-    element,
-    done: true,
+if (urlParams.get('loadExisting')) {
+  const existingOrnaments = JSON.parse(localStorage.ornaments || '[]');
+  
+  existingOrnaments.forEach(({
+    position,
     url,
-    velocity: {
-      x: 0,
-      y: 0,
-    },
-    position
-  };
-  ornaments.push(ornament);
-  element.classList.add('ornament');
-  document.body.appendChild(element);
-  element.style.top = ornament.getTop() + 'px';
-  element.style.left = ornament.getLeft() + 'px';
-});
+    avatar = true
+  }) => {
+    const element = createDropElement('', url, true);
+    const ornament = {
+      __proto__: dropPrototype,
+      element,
+      done: true,
+      url,
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+      position
+    };
+    ornaments.push(ornament);
+    element.classList.add('ornament');
+    document.body.appendChild(element);
+    element.style.top = ornament.getTop() + 'px';
+    element.style.left = ornament.getLeft() + 'px';
+  });
+}
+
 
 function createDropElement(name, url, avatar) {
   const dropElement = document.createElement('div');
@@ -211,57 +213,45 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-for (let i = 0; i < 50; i++) {  
-  doDrop('Alca', 'https://static-cdn.jtvnw.net/emoticons/v1/328626_SA/3.0', true, true);
+for (let i = 0; i < 1; i++) {  
+  doDrop('Alca', 'https://static-cdn.jtvnw.net/emoticons/v1/328626_SA/3.0', false, true);
 }
 
 gameLoop();
 
-let liveChatId = new Date().toLocaleDateString();
+if (urlParams.get('channel')) {
 
-(async () => {
-  const socket = io(config.messageServer);
-  liveChatId = await fetch(`${config.messageServer}/streams`)
-    .then(res => res.json())
-    .then(([event]) => {
-      if (event) {
-        return event.snippet.liveChatId;
-      }
-      return new Date().toLocaleDateString();
-    });
-
-  socket.on(`messages/${liveChatId}`, (messages) => {
-    messages.forEach(message => {
-      if (message.message.startsWith('!clear') && message.author.isChatOwner) {
-        clearOrnaments();
-      }
-      if (message.message.startsWith('!drop')) {
-        const username = message.author.displayName;
-        if (users[username]) return;
-        const args = message.message.split(' ');
-        args.shift();
-        const arg = args.length ? args[0].trim() : '';
-        const emojis = twemoji.parse(arg, {
+  const client = new tmi.Client({
+    debug: true,
+    connection: {
+      secure: true,
+      reconnect: true
+    },
+    channels: [ urlParams.get('channel') ]
+  });
+  
+  client.connect();
+  
+  client.on('message', (channel, tags, message, self) => {
+    if (message.startsWith('!drop')) {
+      const name = tags['display-name'] || tags.username;
+      if (users[name]) return;
+      if (tags.emotes) {
+        const emoteIds = Object.keys(tags.emotes);
+        const emoteId = emoteIds[Math.floor(Math.random() * emoteIds.length)];
+        const url = `https://static-cdn.jtvnw.net/emoticons/v1/${emoteId}/3.0`;
+        doDrop(name, url);
+      } else {
+        const emojis = twemoji.parse(message, {
           assetType: 'png'
         });
         if (emojis.length) {
           const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-          doDrop(username, emoji.url);
-        } else if (arg === 'me') {
-          doDrop(username, message.author.profileImageUrl, true);
+          doDrop(name, emoji.url);
         } else {
-          const emoteMatches = arg.match(/!\[\]\((.*)\)/);
-          if (emoteMatches && emoteMatches[1].startsWith('http')) {
-            doDrop(username, emoteMatches[1]);
-          } else {
-            if (message.platform === 'twitch') {
-              doDrop(username, 'https://static-cdn.jtvnw.net/emoticons/v1/1713818/3.0');
-            } else {
-              doDrop(username, 'https://i.imgur.com/rDtKBbG.png');
-            }
-          }
+          doDrop(name, 'https://static-cdn.jtvnw.net/emoticons/v1/1713818/3.0');
         }
       }
-    });
-  });
-})();
+    }
+  });  
+}
