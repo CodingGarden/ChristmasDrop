@@ -7,10 +7,15 @@ if (!urlParams.get('snowflakes')) {
   document.querySelector('.snowflakes').remove();
 }
 
+if (!urlParams.get('snow')) {
+  document.querySelector('#ground-snow').remove();
+}
+
 let drops = [];
 const users = {};
 let ornaments = [];
 const treeCenterX = window.innerWidth / 2;
+const cooldown = urlParams.get('cooldown') ? urlParams.get('cooldown') * 1000 : 30000;
 
 function getCenterAndRadius(rectangle) {
   return {
@@ -188,7 +193,7 @@ function update() {
           }, 1000);
           setTimeout(() => {
             users[drop.username] = false;
-          }, 30000);
+          }, cooldown);
         } else {
           drop.velocity.y *= 0.8;
           if (drop.velocity.y <= 0.5) {
@@ -205,7 +210,7 @@ function update() {
           document.body.removeChild(drop.element);
           drops = drops.filter(d => d !== drop);
           users[drop.username] = false;
-        }, 30000);
+        }, cooldown);
       }
     }
   });
@@ -217,9 +222,10 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-for (let i = 0; i < 1; i++) {  
+if (urlParams.get('alca') !== 'false') {
   doDrop('Alca', 'https://static-cdn.jtvnw.net/emoticons/v1/328626_SA/3.0', false, true);
 }
+
 
 gameLoop();
 
