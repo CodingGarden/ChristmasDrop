@@ -21,7 +21,7 @@ function debounce(func, wait, immediate) {
 
 const
   // Draw collision boxes
-  debug = true,
+  debug = false,
 
   // Drop up to this many pixels from the left/right edges:
   dropEdgeIn = 100,
@@ -32,7 +32,8 @@ const
   airResistanceF = 0.1,
 
    // Each drop has a random +ve vertical speed limit (fake air resistance)
-  randomVY = () => Math.random() * 5 + 3;
+  randomVY = () => Math.random() * 2 + 0.5,
+  randomVX = () => (Math.random() * 4 + 2) * (Math.random() > 0.5 ? -1 : 1);
 
 let treeRect, treeCenterX, worldSize, quadTree;
 const
@@ -271,12 +272,12 @@ existingOrnaments.forEach(({position, url, avatar = true}) => {
 });
 
 function doDrop(username, url, avatar = false, testing = false) {
-  // if (users[username]) return;
+  if (users[username]) return;
   users[username] = true;
   createDrop(username, url, avatar,
     testing ? treeCenterX : dropEdgeIn + Math.floor(Math.random() * (worldSize.width - 2 * dropEdgeIn)), -100 - (Math.random() * 200),
     false,
-    testing ? 0 : (Math.random() * 4) * (Math.random() > 0.5 ? -1 : 1), randomVY());
+    testing ? 0 : randomVX(), randomVY());
 }
 
 function draw() {
@@ -519,9 +520,10 @@ function update(frameTimeMS, timestamp) {
      // Gravity
     if (!noGravity.has(drop)) drop.velocity.y += gravity * frameQ;
     // Air resistance effect:
-    if (drop.velocity.y > 0 && drop.velocity.x ** 2 + drop.velocity.y ** 2 > drop.maxVSQ) {
+    // if (drop.velocity.y > 0 && drop.velocity.x ** 2 + drop.velocity.y ** 2 > drop.maxVSQ) {
+    if (drop.velocity.y > 0 && drop.velocity.y ** 2 > drop.maxVSQ) {
       drop.velocity.y *= 1 - airResistanceF * frameQ;
-      drop.velocity.x *= 1 - airResistanceF * frameQ;
+      // drop.velocity.x *= 1 - airResistanceF * frameQ;
     }
   }
 }
@@ -561,7 +563,7 @@ const collisionGC = () => {
   // if (gcCount) console.log(`Cleaned up ${gcCount} entries`);
 };
 
-for (let i = 0; i < 100; i++) {  
+for (let i = 0; i < 1; i++) {  
   doDrop('Rick Astley', 'https://i.giphy.com/media/gfxeFtolrd4fLhTaEg/giphy.webp', true, false);
 }
 
