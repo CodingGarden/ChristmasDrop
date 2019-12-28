@@ -13,6 +13,20 @@ body {
   font-family: 'Press Start 2P', sans-serif;
 }
 
+.drop.collisiondebug .emote {
+  outline: 4px blue solid;
+}
+
+.debug-info {
+  position: fixed;
+  left: 0;
+  top: 0;
+  color: lime;
+  font-family: 'Press Start 2P', sans-serif;
+  font-size: 2vmin;
+  z-index: 10;
+}
+
 #tree {
   position: fixed;
   bottom: 5vh;
@@ -33,9 +47,10 @@ body {
 
 #ground-snow {
   position: fixed;
-  bottom: -9vh;
+  bottom: 0;
+  height: 9vh;
   width: 100%;
-  transform: scaleY(0.5)
+  transform: scaleY(0.5) translateY(+50%)
 }
 
 .drop {
@@ -44,7 +59,9 @@ body {
   justify-content: center;
   align-items: center;
   width: 8vmin;
-  animation: sway 1s infinite alternate ease-in-out;
+  height: 8vmin;
+  animation: sway-mid 1s infinite alternate ease-in-out;
+  transform: translate(-50%, -50%);
 }
 
 .drop .name {
@@ -79,9 +96,9 @@ body {
 }
 
 .drop.ornament .snowflake-bg {
-  /* animation: fade 2s ease-in-out;
-  opacity: 0; */
-  visibility: hidden;
+  animation: fade 2s ease-in-out;
+  opacity: 0;
+  /* visibility: hidden; */
 }
 
 .drop .emote {
@@ -92,10 +109,30 @@ body {
 
 .drop.ornament .emote {
   transform: scale(0.8);
+  animation: to-ornament 0.5s ease-in-out;
 }
 
+@keyframes to-ornament {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.8);
+  }
+}
+
+
 .drop.ornament.fall-off {
-  animation: fall-off 1s ease-in-out;
+  animation: fall-off-mid 1s ease-in-out;
+}
+
+@keyframes fall-off-mid {
+  0% {
+    transform: translate(-50%, -50%);
+  }
+  100% {
+    transform: translate(-50%, 30vh);
+  }
 }
 
 .drop .emote.avatar {
@@ -103,8 +140,17 @@ body {
 }
 
 .drop.done {
-  animation: shrink 1s ease-in-out;
-  transform: scale(0);
+  animation: shrink-mid 1s ease-in-out;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+@keyframes shrink-mid {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0);
+  }
 }
 
 @keyframes sway {
@@ -113,6 +159,15 @@ body {
   }
   100% {
     transform: rotate(10deg);
+  }
+}
+
+@keyframes sway-mid {
+  0% {
+    transform: translate(-50%, -50%) rotate(-10deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(10deg);
   }
 }
 
